@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+.venv
+env/
+venv/
+pip-wheel-metadata/
+
+# 환경 변수 / 설정 파일
+.env
+*.env
+.env.*
+
+# Jupyter / IPython
+.ipynb_checkpoints/
+*.ipynb
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+logs/
+log/
+
+# 크롤링 관련
+driver/
+
+# 모델 및 벡터 파일
+*.pth
+*.pt
+*.onnx
+*.h5
+*.joblib
+*.pkl
+*.npy
+*.npz
+*.pb
+*.ckpt
+
+# 대용량 데이터
+data/
+datasets/
+output/
+outputs/
+results/
+*.csv
+*.tsv
+*.jsonl
+*.parquet
+
+# Bedrock, LangChain 등 기타 LLM 로그
+.mcp/
+.mlfoundations/
+llm_cache/
+openai_api.log
+dify_logs/
+
+# AWS
+.aws/
+__boto3__/
+
+# PyCharm
+.idea/
