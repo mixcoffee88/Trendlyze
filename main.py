@@ -1,6 +1,6 @@
 import logging, argparse
 from crawler.CrawlingManager import CrawlingManager
-from llm.classify_duplicates import classify_duplicates, deduplicate_by_link
+from llm.classify_duplicates import deduplicate_by_link
 from llm.analyze_article import analyze_article
 from llm.extract_cluster_topic import extract_cluster_topic
 from llm.cluster_by_category_e5 import SummaryClusterer
