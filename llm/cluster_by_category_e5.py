@@ -38,7 +38,18 @@ class SummaryClusterer:
         with torch.no_grad():
             outputs = self.model(**inputs)
             return outputs.last_hidden_state[:, 0, :].squeeze().numpy()
-
+        
+    def get_batch_embeddings(self, texts: list[str], batch_size=32):
+        embeddings = []
+        for i in range(0, len(texts), batch_size):
+            batch_texts = [f"passage: {t}" for t in texts[i:i + batch_size]]
+            inputs = self.tokenizer(batch_texts, return_tensors="pt", padding=True, truncation=True, max_length=512)
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+                batch_embeddings = outputs.last_hidden_state[:, 0, :].cpu().numpy()
+                embeddings.extend(batch_embeddings)
+        return np.array(embeddings)
+    
     def load_data(self):
         file_full_path = os.path.join(
             settings.CRAWL_DATA_DIR,
@@ -64,6 +75,8 @@ class SummaryClusterer:
             category_map[category].append((summary, item))
         return category_map
 
+
+
     def cluster_category(self, category, summary_items):
         summaries = [s for s, _ in summary_items]
         if len(summaries) < self.num_clusters:
@@ -72,7 +85,9 @@ class SummaryClusterer:
             )
             return []
 
-        embeddings = np.array([self.get_embedding(text) for text in summaries])
+        # embeddings = np.array([self.get_embedding(text) for text in summaries])
+        embeddings = self.get_batch_embeddings(summaries)
+
         kmeans = KMeans(n_clusters=self.num_clusters, random_state=42).fit(embeddings)
         labels = kmeans.labels_
 
