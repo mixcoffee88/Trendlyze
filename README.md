@@ -45,7 +45,11 @@ pip install -r requirements.txt
 
 * [ChromeDriver](https://chromedriver.chromium.org/downloads)를 설치한 후, `settings.py` 혹은 `.env`에서 건드 지정 필요
 
-### 4. 실행
+## 4. linux 서버에서 드라이버 권한 주기
+chmod +x /home/ec2-user/CrawlBulk/driver/linux/chromedriver/chromedriver
+chmod +x /home/ec2-user/CrawlBulk/driver/linux/chrome/chrome
+
+### 5. 실행
 
 ```bash
 python main.py
