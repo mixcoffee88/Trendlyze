@@ -12,10 +12,12 @@
 📅 EventBridge (1일 1회) → Lambda → Hub EC2 기동
 
 🏗 Hub EC2 (Controller)
- └─ 1. SQS에 사이트 80개 푸시
- └─ 2. Node N개 run_instances 생성
- └─ 3. 상태 감시 (DynamoDB)
- └─ 4. 모든 Node 상태 COMPLETED or FAILED 시 종료 (shutdown -h now)
+ └─ 1. NAT Instance 시작 (run-instances)
+ └─ 2. GIT PULL 후 S3 업로드
+ └─ 3. SQS에 사이트 80개 푸시
+ └─ 4. Node N개 run_instances 생성
+ └─ 5. 상태 감시 (DynamoDB)
+ └─ 6. 모든 Node 상태 COMPLETED or FAILED 시 종료 (shutdown -h now)
 
 🧱 Node EC2 (Worker)
  └─ 1. cloud-init: EFS 마운트 → S3 코드 다운로드
@@ -55,6 +57,12 @@
      → shutdown -h now
 
 ```
+
+## DynamoDB TTL 설정
+* lastUpdateEpoch + 1일로 TTL 설정 시,
+- 자동 정리 가능
+- 이전 상태나 시도 기록이 1일 뒤 정리되어 재시도 여지 확보
+
 ## 🔁 Hub 무한 대기 방지 감시 로직
 * Hub에서 30초 주기로 DynamoDB 상태 확인:
 ```python
