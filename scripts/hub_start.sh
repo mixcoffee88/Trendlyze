@@ -8,7 +8,8 @@ S3_BUCKET="trendlyze-ap-northeast-2-20250526"
 S3_PATH="resource/trendlyze.zip"
 SCRIPT_S3_KEY="scripts/node_start.sh"
 LOG_DATE=$(date '+%Y-%m-%d')
-LOG_FILE="$ROOT_DIR/logs/log_${LOG_DATE}.log"
+LOG_DIR="$ROOT_DIR/logs"
+LOG_FILE="$LOG_DIR/log_${LOG_DATE}.log"
 LOCK_FILE="$ROOT_DIR/hub_start.lock"
 
 REGION="ap-northeast-2"
@@ -63,7 +64,7 @@ on_exit() {
 trap on_exit EXIT
 trap 'echo "💥 예기치 않은 오류 발생!" >> "$LOG_FILE"; rm -f "$LOCK_FILE"' ERR
 
-log "🚀 시작(v0.2)"
+log "🚀 시작(v0.3)"
 
 cd "$REPO_DIR"
 
@@ -140,8 +141,9 @@ if [[ "$CURRENT_HASH" != "$LATEST_HASH" ]]; then
   if ! aws lambda invoke \
     --function-name "$LAMBDA_FUNCTION_NAME" \
     --invocation-type Event \
-    --payload '{"body":{"command":"retry"}}' \ \
-    /dev/null; then
+    --cli-binary-format raw-in-base64-out \
+    --payload '{"command": "retry"}' \
+    $LOG_DIR/lambda_output.json
     log "❌ Lambda 호출 실패. 스크립트 중단"
     exit 1
   fi
