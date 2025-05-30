@@ -22,7 +22,7 @@ TEMP_ZIP_FILE="$TEMP_DIR/$ZIP_FILENAME"
 PROJECT_DIR="$RESOURCE_DIR/$APP_NAME"
 ETAG_FILE="$ZIP_FILE.etag"
 
-mkdir -p "$TMP_DIR"
+mkdir -p "$TEMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
 
 # ==== 공통 함수 ====
