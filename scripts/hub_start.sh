@@ -61,10 +61,11 @@ on_exit() {
   print_final_status
   rm -f "$LOCK_FILE"
 }
+
 trap on_exit EXIT
 trap 'echo "💥 예기치 않은 오류 발생!" >> "$LOG_FILE"; rm -f "$LOCK_FILE"' ERR
 
-log "🚀 시작(v0.0.1)"
+log "🚀 시작 - (v0.0.1)"
 
 cd "$REPO_DIR"
 
