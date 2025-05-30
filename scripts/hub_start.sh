@@ -143,7 +143,7 @@ if [[ "$CURRENT_HASH" != "$LATEST_HASH" ]]; then
     --invocation-type Event \
     --cli-binary-format raw-in-base64-out \
     --payload '{"command": "retry"}' \
-    $LOG_DIR/lambda_output.json
+    $LOG_DIR/lambda_output.json; then
     log "❌ Lambda 호출 실패. 스크립트 중단"
     exit 1
   fi
