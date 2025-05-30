@@ -64,7 +64,7 @@ on_exit() {
 trap on_exit EXIT
 trap 'echo "💥 예기치 않은 오류 발생!" >> "$LOG_FILE"; rm -f "$LOCK_FILE"' ERR
 
-log "🚀 시작(v0.6)"
+log "🚀 시작(v0.1)"
 
 cd "$REPO_DIR"
 
@@ -149,7 +149,6 @@ if [[ "$CURRENT_HASH" != "$LATEST_HASH" ]]; then
   fi
   log "🛑 현재 hub_start.sh 종료"
   exit 0
-
 fi
 
 # 인스턴스 조회 및 시작
