@@ -5,7 +5,7 @@ set -e
 APP_NAME="trendlyze"
 ROOT_DIR="/home/ec2-user/trendlyze"
 RESOURCE_DIR="$ROOT_DIR/resource"
-TEMP_DIR="$RESOURCE_DIR/temp"
+TEMP_DIR="$ROOT_DIR/tmp"
 LOG_DATE=$(date '+%Y-%m-%d')
 LOG_FILE="$ROOT_DIR/logs/log_${LOG_DATE}.log"
 
@@ -21,6 +21,9 @@ ZIP_FILE="$RESOURCE_DIR/$ZIP_FILENAME"
 TEMP_ZIP_FILE="$TEMP_DIR/$ZIP_FILENAME"
 PROJECT_DIR="$RESOURCE_DIR/$APP_NAME"
 ETAG_FILE="$ZIP_FILE.etag"
+
+mkdir -p "$TMP_DIR"
+mkdir -p "$(dirname "$LOG_FILE")"
 
 # ==== 공통 함수 ====
 log() {
