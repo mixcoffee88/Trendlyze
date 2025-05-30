@@ -3,6 +3,7 @@ set -e
 
 ROOT_DIR="/home/ec2-user/trendlyze"
 REPO_DIR="$ROOT_DIR/resource/Trendlyze"
+TMP_DIR="$ROOT_DIR/tmp"
 S3_BUCKET="trendlyze-ap-northeast-2-20250526"
 S3_PATH="resource/trendlyze.zip"
 SCRIPT_S3_KEY="scripts/node_start.sh"
@@ -19,10 +20,10 @@ COMMAND="$ROOT_DIR/node_start.sh"
 HUB_SCRIPT_LOCAL_PATH="$REPO_DIR/scripts/hub_start.sh"
 HUB_TARGET_SCRIPT="$ROOT_DIR/hub_start.sh"
 NODE_SCRIPT_LOCAL_PATH="$REPO_DIR/scripts/node_start.sh"
-NODE_SCRIPT_TMP_LOCAL_PATH="$ROOT_DIR/tmp/node_start_tmp.sh"
+NODE_SCRIPT_TMP_LOCAL_PATH="$TMP_DIR/node_start_tmp.sh"
 NODE_TARGET_SCRIPT=$COMMAND
 
-mkdir -p "$(dirname "$LOG_FILE")"
+mkdir -p "$(dirname "$TMP_DIR")"
 
 # 로그 함수
 log() {
@@ -93,7 +94,7 @@ NEW_COMMIT=$(git rev-parse HEAD)
 
 if [ "$OLD_COMMIT" != "$NEW_COMMIT" ]; then
   log "✅ 변경 감지됨: $OLD_COMMIT ➜ $NEW_COMMIT"
-  ZIP_FILE="$ROOT_DIR/tmp/project_$(date +'%Y%m%d_%H%M%S').zip"
+  ZIP_FILE="$TMP_DIR/project_$(date +'%Y%m%d_%H%M%S').zip"
   zip -r "$ZIP_FILE" . -x "*.git*" "*.venv*" "*__pycache__*" "*.log" "*.DS_Store" "*.bak" "*.tmp" >> "$LOG_FILE" 2>&1
 
   log "⬆️ S3 업로드 중: $ZIP_FILE ➜ s3://$S3_BUCKET/$S3_PATH"
