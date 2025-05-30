@@ -140,7 +140,7 @@ if [[ "$CURRENT_HASH" != "$LATEST_HASH" ]]; then
   if ! aws lambda invoke \
     --function-name "$LAMBDA_FUNCTION_NAME" \
     --invocation-type Event \
-    --payload '{ "body": "{\"command\": \"retry\"}" }' \
+    --payload '{"body":{"command":"retry"}}' \ \
     /dev/null; then
     log "❌ Lambda 호출 실패. 스크립트 중단"
     exit 1
