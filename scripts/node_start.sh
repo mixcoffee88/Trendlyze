@@ -3,9 +3,11 @@ set -e
 
 # ==== 설정 ====
 APP_NAME="trendlyze"
-RESOURCE_DIR="/home/ec2-user/trendlyze/resource"
+ROOT_DIR="/home/ec2-user/trendlyze"
+RESOURCE_DIR="$ROOT_DIR/resource"
 TEMP_DIR="$RESOURCE_DIR/temp"
-LOG_FILE="/home/ec2-user/trendlyze/logs/init.log"
+LOG_DATE=$(date '+%Y-%m-%d')
+LOG_FILE="$ROOT_DIR/logs/log_${LOG_DATE}.log"
 
 S3_BUCKET="trendlyze-ap-northeast-2-20250526"
 S3_KEY="resource/trendlyze.zip"
