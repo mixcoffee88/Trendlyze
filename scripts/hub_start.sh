@@ -23,7 +23,11 @@ NODE_SCRIPT_LOCAL_PATH="$REPO_DIR/scripts/node_start.sh"
 NODE_SCRIPT_TMP_LOCAL_PATH="$TMP_DIR/node_start_tmp.sh"
 NODE_TARGET_SCRIPT=$COMMAND
 
-mkdir -p "$(dirname "$TMP_DIR")"
+# Lambda 함수 이름 지정
+LAMBDA_FUNCTION_NAME="trendlyze-instance-start"
+
+mkdir -p "$TMP_DIR"
+mkdir -p "$(dirname "$LOG_FILE")"
 
 # 로그 함수
 log() {
@@ -125,13 +129,25 @@ CURRENT_HASH=$(sha256sum "$HUB_TARGET_SCRIPT" 2>/dev/null | awk '{print $1}')
 LATEST_HASH=$(sha256sum "$HUB_SCRIPT_LOCAL_PATH" | awk '{print $1}')
 
 if [[ "$CURRENT_HASH" != "$LATEST_HASH" ]]; then
-  log "♻️ hub_start.sh 변경 감지됨. 최신본으로 덮어쓰기 후 재시작"
-  echo "♻️ hub_start.sh 변경 감지됨. 최신본으로 덮어쓰기 후 재시작"
+  log "♻️ hub_start.sh 변경 감지됨. 최신본으로 덮어쓰기 후 Lambda 재호출 요청"
+  echo "♻️ hub_start.sh 변경 감지됨. 최신본으로 덮어쓰기 후 Lambda 재호출 요청"
   cp "$HUB_SCRIPT_LOCAL_PATH" "$HUB_TARGET_SCRIPT"
   chmod +x "$HUB_TARGET_SCRIPT"
-  log "🔁 스크립트 재시작 중..."
-  echo "🔁 스크립트 재시작 중..."
-  exec "$HUB_TARGET_SCRIPT"
+
+  
+  log "🚀 Lambda 재호출 요청 완료 → 함수명: $LAMBDA_FUNCTION_NAME"
+  # Lambda 재호출
+  if ! aws lambda invoke \
+    --function-name "$LAMBDA_FUNCTION_NAME" \
+    --invocation-type Event \
+    --payload '{ "body": "{\"command\": \"retry\"}" }' \
+    /dev/null; then
+    log "❌ Lambda 호출 실패. 스크립트 중단"
+    exit 1
+  fi
+  log "🛑 현재 hub_start.sh 종료"
+  exit 0
+
 fi
 
 # 인스턴스 조회 및 시작
