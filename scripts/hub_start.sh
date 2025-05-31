@@ -379,6 +379,8 @@ for FILE in "$REPO_DIR"/crawler/site/*.py; do
       \"req_date\": {\"S\": \"$REQ_DATE\"},
       \"site\": {\"S\": \"$FILENAME\"},
       \"sent_at\": {\"S\": \"$SENT_AT\"},
+      \"running_at\": {\"S\": \"\"},
+      \"fail_count\": {\"N\": \"0\"},
       \"status\": {\"S\": \"INIT\"}
     }" \
     --region "$REGION" >> "$LOG_FILE" 2>&1

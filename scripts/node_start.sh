@@ -47,6 +47,7 @@ LAMBDA_NAME="trendlyze-monitoring"
 TARGET_DATE=$(TZ=Asia/Seoul date -d 'yesterday' '+%Y-%m-%d')
 ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
 REGION="ap-northeast-2"
+TABLE_NAME="trendlyze-instance-monitoring"
 
 mkdir -p "$LINUX_DRIVER_DIR"
 mkdir -p "$TEMP_DIR"
@@ -234,6 +235,25 @@ log "🔗 심볼릭 링크 생성: $PROJECT_DIR/profiles ➜ $EFS_DIR/profiles"
 
 SCHEDULE_NAME="monitoring-schedule-${INSTANCE_ID}"
 log "📆 Scheduler 생성 시도: $SCHEDULE_NAME"
+
+log "📆 모니터링 table insert($TABLE_NAME) 시작작"
+
+# 현재 시간
+SENT_AT=$(TZ=Asia/Seoul date -u +"%Y-%m-%dT%H:%M:%SZ")
+REQ_DATE=$(TZ=Asia/Seoul date -u +"%Y%m%d")
+
+# DynamoDB 기록
+aws dynamodb put-item \
+  --table-name "$TABLE_NAME" \
+  --item "{
+    \"req_date\": {\"S\": \"$REQ_DATE\"},
+    \"instance_id\": {\"S\": \"$INSTANCE_ID\"},
+    \"sent_at\": {\"S\": \"$SENT_AT\"},
+    \"status\": {\"S\": \"INIT\"}
+  }" \
+  --region "$REGION" >> "$LOG_FILE" 2>&1
+
+log "📆 모니터링 table insert 완료"
 
 aws scheduler create-schedule \
   --name "$SCHEDULE_NAME" \
