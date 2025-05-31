@@ -193,7 +193,8 @@ python3.11 -m venv $ROOT_DIR/.venv
 source $ROOT_DIR/.venv/bin/activate
 
 python -m pip install --upgrade pip
-pip install -r requirements.txt || { log "❌ requirements 설치 실패"; exit 1; }
+pip install -r requirements.txt >> "$LOG_FILE" 2>> "$LOG_FILE" || { log "❌ requirements 설치 실패"; exit 1; }
+
 
 log "✅ All required modules installed."
 
