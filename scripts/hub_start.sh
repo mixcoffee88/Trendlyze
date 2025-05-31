@@ -191,12 +191,29 @@ fi
 # requirements.txt 설치
 log "📦 Installing requirements.txt modules..."
 cd "$REPO_DIR"
-python3.11 -m venv $ROOT_DIR/.venv
+if [ ! -d "$ROOT_DIR/.venv" ]; then
+  log "🔧 venv 디렉토리 없음. 새로 생성 중..."
+  python3.11 -m venv $ROOT_DIR/.venv
+fi
 source $ROOT_DIR/.venv/bin/activate
 
-python -m pip install --upgrade pip
-pip install --no-cache-dir -r requirements.txt >> "$LOG_FILE" 2>> "$LOG_FILE" || { log "❌ requirements 설치 실패"; exit 1; }
+# 이미 설치된 requirements.txt hash와 비교 (필요 시에만 설치)
+REQ_HASH_FILE="$ROOT_DIR/.venv/requirements.hash"
+CUR_HASH=$(sha256sum requirements.txt | awk '{print $1}')
+if [ -f "$REQ_HASH_FILE" ]; then
+  OLD_HASH=$(cat "$REQ_HASH_FILE")
+else
+  OLD_HASH=""
+fi
 
+if [[ "$CUR_HASH" != "$OLD_HASH" ]]; then
+  log "📦 requirements.txt 변경 감지됨. 모듈 재설치 시작..."
+  python -m pip install --upgrade pip
+  pip install --no-cache-dir -r requirements.txt >> "$LOG_FILE" 2>> "$LOG_FILE" || { log "❌ requirements 설치 실패"; exit 1; }
+  echo "$CUR_HASH" > "$REQ_HASH_FILE"
+else
+  log "📦 requirements.txt 변경 없음. 설치 생략"
+fi
 
 log "✅ All required modules installed."
 
