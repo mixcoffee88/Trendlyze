@@ -29,22 +29,6 @@ def main():
         try:
             logging.info("WEB SITE URL 크롤링을 실행합니다.")
             manager.execCrawlingWebSite()
-            results = manager.merge_get_json_files(manager.uuid)
-            results = deduplicate_by_link(results)
-            # # deduplicate_by_link
-            manager.saveResults("dedup", results)
-            results = analyze_article(results)
-            manager.saveResults("analyze", results)
-            logging.info("WEB SITE URL 크롤링이 종료되었습니다.")
-
-            logging.info("SummaryClusterer 실행합니다.")
-            # results = clusterer.run()
-            logging.info("SummaryClusterer 종료되었습니다.")
-            results = manager.s3.loadJsonFromS3(
-                "crawl/20250528/f9d05846fe4c47c19ff34fe40c1ebe50/clustered_result.json"
-            )
-            results = extract_cluster_topic(results)
-            manager.saveResults("final", results)
         except Exception as e:
             logging.error(f"❌ 크롤링 실패: {e}")
     finally:

@@ -190,5 +190,9 @@ fi
 chmod +x "$CHROME_EXEC"
 chmod +x "$CHROMEDRIVER_EXEC"
 
+[ -L "$PROJECT_DIR/driver" ] || [ -d "$PROJECT_DIR/driver" ] && rm -rf "$PROJECT_DIR/driver"
+ln -s "$DRIVER_DIR" "$PROJECT_DIR/driver"
+log "🔗 심볼릭 링크 생성: $PROJECT_DIR/driver ➜ $DRIVER_DIR"
+
 log "🎉 배포 완료"
 exit 0

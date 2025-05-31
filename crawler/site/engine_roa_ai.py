@@ -7,7 +7,7 @@ from config import settings
 import logging
 from utils.result_limiter import ResultLimiter
 from utils.common import is_within_days, replace_date, make_result, wait_ready_state
-from crawler.CrawlingManager import CrawlingManager
+from crawler.crawling_manager import CrawlingManager
 from models.elements import InputField, ActionButton
 
 logger = logging.getLogger(__name__)

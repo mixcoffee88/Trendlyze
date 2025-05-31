@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 from collections import defaultdict
 from aws.S3Uploader import S3Uploader
-from crawler.CrawlingManager import CrawlingManager
+from crawler.crawling_manager import CrawlingManager
 from config import settings
 
 logger = logging.getLogger(__name__)

@@ -342,7 +342,7 @@ class CrawlingManager:
         return results
 
     # ------- site 폴더 내 모든 crawling() 실행 -------
-    def execCrawlingWebSite(self):
+    def execCrawlingWebSite(self, file_name):
         # logger.info(f"{settings.PROJECT_ROOT}")
         """
         site 디렉터리의 모든 .py 파일에서 crawling(self.browser) 함수가 있으면 실행
@@ -350,13 +350,11 @@ class CrawlingManager:
         site_path = os.path.join(settings.PROJECT_ROOT, "crawler", "site")
         for fname in os.listdir(site_path):
             if fname.endswith(".py"):
-                module_name = f"crawler.site.{fname[:-3]}"
+                module_name = f"crawler.site.{file_name}"
                 module = importlib.import_module(module_name)
                 if hasattr(module, "crawling"):
                     logger.info(f"실행: {module_name}.crawling()")
                     try:
-                        # if fname[:-3] == "zdnet":
-                        #     module.crawling(self)
                         module.crawling(self)
                     except Exception as e:
                         logger.error(f"에러: {e}")
