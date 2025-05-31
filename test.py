@@ -1,15 +1,15 @@
-import json
+import json, os
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import itertools
 from llm.analyze_article import analyze_article
 
 # 1. JSON 파일 읽기
-with open("llm/merge_result.json", "r", encoding="utf-8") as f:
-    data = json.load(f)  # data: list of dict
+# with open("llm/merge_result.json", "r", encoding="utf-8") as f:
+#     data = json.load(f)  # data: list of dict
 
-test = analyze_article(data)
-print(test)
+# test = analyze_article(data)
+# print(test)
 
 # # 2. 문서 본문 리스트 추출 (예: "content" 키)
 # texts = [item["content"] for item in data]
@@ -35,3 +35,12 @@ print(test)
 #     print(f"idx {i} <-> idx {j} (유사도={sim:.4f})")
 #     # print("문서1:", texts[i][:100])
 #     # print("문서2:", texts[j][:100])
+
+print(
+    os.path.join(
+        "tem/aaa",
+        "20240505",
+        "",
+        f"test_result.json",
+    )
+)

@@ -34,7 +34,7 @@ def handler(signum, frame):
 
 # ===== 크롤링 매니저 클래스 =====
 class CrawlingManager:
-    def __init__(self):
+    def __init__(self, site):
         # 크롬 브라우저 실행 환경(옵션) 설정 및 인스턴스 생성
         logger.debug(f"✅ CHROME_DRIVER_PATH: {settings.CHROME_DRIVER_PATH}")
         logger.debug(f"✅ BINARY_PATH: {settings.CHROME_BINARY_PATH}")
@@ -123,6 +123,7 @@ class CrawlingManager:
         # 유니크 식별용 UUID 생성
         # self.uuid = str(uuid.uuid4()).replace("-", "")
         # self.uuid = "f9d05846fe4c47c19ff34fe40c1ebe50"
+        self.site = site
         self.timestamp = datetime.now().strftime("%Y%m%d")
         self.s3 = S3Uploader()
         self.idx = 0  # 크롤링 인덱스 초기화
@@ -342,7 +343,7 @@ class CrawlingManager:
         return results
 
     # ------- site 폴더 내 모든 crawling() 실행 -------
-    def execCrawlingWebSite(self, file_name):
+    def execCrawlingWebSite(self):
         # logger.info(f"{settings.PROJECT_ROOT}")
         """
         site 디렉터리의 모든 .py 파일에서 crawling(self.browser) 함수가 있으면 실행
@@ -350,7 +351,7 @@ class CrawlingManager:
         site_path = os.path.join(settings.PROJECT_ROOT, "crawler", "site")
         for fname in os.listdir(site_path):
             if fname.endswith(".py"):
-                module_name = f"crawler.site.{file_name}"
+                module_name = f"crawler.site.{self.site}"
                 module = importlib.import_module(module_name)
                 if hasattr(module, "crawling"):
                     logger.info(f"실행: {module_name}.crawling()")

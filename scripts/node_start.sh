@@ -33,6 +33,23 @@ CHROME_ZIP_FILE="$TEMP_DIR/chrome.zip"
 CHROMEDRIVER_ZIP_KEY="resource/driver/linux/chromedriver.zip"
 CHROMEDRIVER_ZIP_FILE="$TEMP_DIR/chromedriver.zip"
 
+# 📌 설정값
+# EC2 INSTANCE-ID 조회
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+
+INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/instance-id)
+
+RULE_NAME="monitoring-rule-${INSTANCE_ID}"
+STATEMENT_ID="invoke-${INSTANCE_ID}"
+RULE_GROUP="trendlyze-monitoring-group"
+LAMBDA_NAME="trendlyze-monitoring"
+TARGET_ID="trendlyze-monitoring-target-${INSTANCE_ID}"
+TARGET_DATE=$(TZ=Asia/Seoul date -d 'yesterday' '+%Y-%m-%d')
+ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+REGION="ap-northeast-2"
+
 mkdir -p "$LINUX_DRIVER_DIR"
 mkdir -p "$TEMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -195,5 +212,42 @@ chmod +x "$CHROMEDRIVER_EXEC"
 ln -s "$DRIVER_DIR" "$PROJECT_DIR/driver"
 log "🔗 심볼릭 링크 생성: $PROJECT_DIR/driver ➜ $DRIVER_DIR"
 
+[ -L "$EFS_DIR/profiles" ] || [ -d "$EFS_DIR/profiles" ] && rm -rf "$EFS_DIR/profiles"
+ln -s "$EFS_DIR/profiles" "$PROJECT_DIR/profiles"
+log "🔗 심볼릭 링크 생성: $PROJECT_DIR/profiles ➜ $EFS_DIR/profiles"
+
+
+
+# 1️⃣ 일정 규칙 생성 (2분마다, 특정 그룹에 등록)
+aws events put-rule \
+  --name "$RULE_NAME" \
+  --schedule-expression "rate(2 minutes)" \
+  --state ENABLED \
+  --event-bus-name "default" \
+  --schedule-group "$RULE_GROUP"
+
+# 2️⃣ Lambda 호출 권한 부여 (이벤트브릿지가 이 Lambda를 호출할 수 있도록)
+aws lambda add-permission \
+  --function-name "$LAMBDA_NAME" \
+  --statement-id "$STATEMENT_ID" \
+  --action "lambda:InvokeFunction" \
+  --principal events.amazonaws.com \
+  --source-arn "arn:aws:events:$REGION:$ACCOUNT_ID:rule/$RULE_NAME" \
+  --region "$REGION" \
+  || echo "⚠️ Lambda permission already exists, skipping."
+
+
+# 3️⃣ 대상 연결 + Payload 전달
+aws events put-targets \
+  --rule "$RULE_NAME" \
+  --event-bus-name "default" \
+  --targets "[
+    {
+      \"Id\": \"$TARGET_ID\",
+      \"Arn\": \"$(aws lambda get-function --function-name $LAMBDA_NAME --query 'Configuration.FunctionArn' --output text)\",
+      \"Input\": \"{ \\\"instance-id\\\": \\\"$INSTANCE_ID\\\", \\\"target-date\\\": \\\"$TARGET_DATE\\\" }\"
+    }
+  ]"
+  
 log "🎉 배포 완료"
 exit 0

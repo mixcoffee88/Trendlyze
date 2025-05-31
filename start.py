@@ -1,4 +1,4 @@
-import logging, argparse
+import logging, argparse, boto3
 from crawler.crawling_manager import CrawlingManager
 from llm.classify_duplicates import deduplicate_by_link
 from llm.analyze_article import analyze_article
@@ -10,6 +10,8 @@ parser.add_argument("--debug", action="store_true")
 args = parser.parse_args()
 level = logging.DEBUG if args.debug else logging.INFO
 
+sqs = boto3.client("sqs", region_name="ap-northeast-2")
+dynamodb = boto3.resource("dynamodb", region_name="ap-northeast-2")
 
 # 로거 설정
 logging.basicConfig(
@@ -21,11 +23,9 @@ logging.basicConfig(
     ],
 )
 
-
 def main():
     try:
         manager = CrawlingManager()
-        clusterer = SummaryClusterer(manager)
         try:
             logging.info("WEB SITE URL 크롤링을 실행합니다.")
             manager.execCrawlingWebSite()

@@ -33,7 +33,7 @@
 | **NAT Instance**         | 모든 Node가 단일 공용 IP로 외부와 통신                                             |
 | **S3**                   | 크롤러 코드 배포 및 실행 파일 다운로드용                                               |
 | **EFS**                  | `user-data-dir` 공유 디렉토리. 크롬 프로필 및 락 파일 관리                             |
-| **SQS (Standard Queue)** | 사이트 작업 큐<br/>✔ `VisibilityTimeout = 300초`<br/>✔ `MaxReceiveCount = 6` |
+| **SQS (Standard Queue)** | 사이트 작업 큐<br/>✔ `VisibilityTimeout = 300초`<br/>✔ `MaxReceiveCount = 1000` |
 | **DynamoDB**             | 사이트별 상태 저장 (`run_status`, `site_status`, `lastUpdateEpoch`)           |
 | **EventBridge + Lambda** | 하루 한 번 Hub EC2 기동                                                     |
 | **EC2 (Hub)**            | 전체 제어: 작업 큐 작성, Node 생성, 상태 모니터링, 종료                                  |
