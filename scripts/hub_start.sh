@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+export GIT_SSH_COMMAND="ssh -i /home/ec2-user/.ssh/id_ed25519"
 
 ROOT_DIR="/home/ec2-user/trendlyze"
 REPO_DIR="$ROOT_DIR/resource/Trendlyze"
