@@ -7,7 +7,7 @@ APP_NAME="trendlyze"
 ROOT_DIR="/home/ec2-user/trendlyze"
 RESOURCE_DIR="$ROOT_DIR/resource"
 TEMP_DIR="$ROOT_DIR/tmp"
-LOG_DATE=$(date '+%Y-%m-%d')
+LOG_DATE=$(TZ=Asia/Seoul date '+%Y-%m-%d')
 LOG_FILE="$ROOT_DIR/logs/log_${LOG_DATE}.log"
 
 S3_BUCKET="trendlyze-ap-northeast-2-20250526"
@@ -56,7 +56,7 @@ mkdir -p $TMPDIR
 
 # ==== 공통 함수 ====
 log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"
+  echo "[$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"
 }
 
 save_etag() {

@@ -11,7 +11,7 @@ TMP_DIR="$ROOT_DIR/tmp"
 S3_BUCKET="trendlyze-ap-northeast-2-20250526"
 S3_PATH="resource/trendlyze.zip"
 SCRIPT_S3_KEY="scripts/node_start.sh"
-LOG_DATE=$(date '+%Y-%m-%d')
+LOG_DATE=$(TZ=Asia/Seoul date '+%Y-%m-%d')
 LOG_DIR="$ROOT_DIR/logs"
 LOG_FILE="$LOG_DIR/log_${LOG_DATE}.log"
 LOCK_FILE="$ROOT_DIR/hub_start.lock"
@@ -31,6 +31,8 @@ NODE_TARGET_SCRIPT=$COMMAND
 # Lambda 함수 이름 지정
 LAMBDA_FUNCTION_NAME="trendlyze-instance-start"
 
+ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+
 mkdir -p "$TMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
 mkdir -p $TMPDIR
@@ -39,7 +41,7 @@ git config --global --add safe.directory "$REPO_DIR"
 
 # 로그 함수
 log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"
+  echo "[$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"
 }
 
 # 락 파일 처리
@@ -350,9 +352,42 @@ fi
 
 [[ -f "$ZIP_FILE" ]] && rm -f "$ZIP_FILE"
 
+# 🔄 site 크롤러 목록 SQS 등록 시작
+log "📩 site 크롤러 목록 SQS 등록 시작"
+
+SQS_QUEUE_URL="https://sqs.$REGION.amazonaws.com/$ACCOUNT_ID/trendlyze-crawl-queue"
+REQ_DATE=$(TZ=Asia/Seoul date -u +"%Y%m%d")
+
+for FILE in "$REPO_DIR"/crawler/site/*.py; do
+  FILENAME=$(basename "$FILE" .py)
+  log "📨 SQS 전송: $FILENAME"
+  
+  aws sqs send-message \
+    --queue-url "$SQS_QUEUE_URL" \
+    --message-body "{\"site\": \"$FILENAME\"}" \
+    --region "$REGION" >> "$LOG_FILE" 2>&1
+
+  # 현재 시간
+  SENT_AT=$(TZ=Asia/Seoul date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+  # DynamoDB 기록
+  aws dynamodb put-item \
+    --table-name "trendlyze-sqs-messages" \
+    --item "{
+      \"req_date\": {\"S\": \"$REQ_DATE\"},
+      \"site\": {\"S\": \"$FILENAME\"},
+      \"sent_at\": {\"S\": \"$SENT_AT\"},
+      \"status\": {\"S\": \"INIT\"}
+    }" \
+    --region "$REGION" >> "$LOG_FILE" 2>&1
+done
+
+log "✅ site 크롤러 목록 SQS 등록 완료"
+
 # 📁 오래된 로그 정리 (30일 초과)
 log "🧹 30일 초과 로그 정리 시작"
 find "$ROOT_DIR/logs" -type f -name "log_*.log" -mtime +30 -print -delete >> "$LOG_FILE" 2>&1
+find "$ROOT_DIR/logs" -type f -name "*.json" -mtime +30 -print -delete >> "$LOG_FILE" 2>&1
 log "🧼 로그 정리 완료"
 
 log "🏁 hub_start.sh 정상 종료됨"
