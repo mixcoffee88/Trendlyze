@@ -223,8 +223,7 @@ aws events put-rule \
   --name "$RULE_NAME" \
   --schedule-expression "rate(2 minutes)" \
   --state ENABLED \
-  --event-bus-name "default" \
-  --schedule-group "$RULE_GROUP"
+  --event-bus-name "default"
 
 # 2️⃣ Lambda 호출 권한 부여 (이벤트브릿지가 이 Lambda를 호출할 수 있도록)
 aws lambda add-permission \
