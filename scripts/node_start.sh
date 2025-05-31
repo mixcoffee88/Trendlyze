@@ -24,7 +24,7 @@ ETAG_FILE="$ZIP_FILE.etag"
 
 mkdir -p "$TEMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
-mkdir -p "$(dirname "$RESOURCE_DIR")"
+mkdir -p "$RESOURCE_DIR"
 
 # ==== 공통 함수 ====
 log() {
