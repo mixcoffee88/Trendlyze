@@ -175,7 +175,6 @@ else
     log yum install gcc openssl-devel bzip2-devel libffi-devel wget -y
     sudo yum install gcc openssl-devel bzip2-devel libffi-devel wget -y >> "$LOG_FILE" 2>&1
 
-
     # 소스 다운로드 및 설치
     cd /usr/src
     sudo wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz
@@ -190,8 +189,8 @@ fi
 # requirements.txt 설치
 log "📦 Installing requirements.txt modules..."
 cd "$REPO_DIR"
-python3.11 -m venv .venv
-source .venv/bin/activate
+python3.11 -m venv $ROOT_DIR/.venv
+source $ROOT_DIR/.venv/bin/activate
 
 python -m pip install --upgrade pip
 pip install -r requirements.txt || { log "❌ requirements 설치 실패"; exit 1; }
