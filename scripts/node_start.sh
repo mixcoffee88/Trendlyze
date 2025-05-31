@@ -244,7 +244,7 @@ aws scheduler create-schedule \
     \"RoleArn\": \"arn:aws:iam::$ACCOUNT_ID:role/$RULE_NAME\",
     \"Input\": \"{ \\\"instance-id\\\": \\\"$INSTANCE_ID\\\", \\\"target-date\\\": \\\"$TARGET_DATE\\\" }\"
   }" \
-  --schedule-group-name "$SCHEDULE_GROUP" >> "$LOG_FILE" 2>&1
+  --group-name "$SCHEDULE_GROUP" >> "$LOG_FILE" 2>&1
 
 # 생성 확인
 log "🔍 생성된 스케줄 상태 확인 중..."
