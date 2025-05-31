@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-export GIT_SSH_COMMAND="ssh -i /home/ec2-user/.ssh/id_ed25519"
+export HOME=/home/ec2-user
 
 ROOT_DIR="/home/ec2-user/trendlyze"
 REPO_DIR="$ROOT_DIR/resource/Trendlyze"
@@ -30,6 +30,8 @@ LAMBDA_FUNCTION_NAME="trendlyze-instance-start"
 
 mkdir -p "$TMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
+
+git config --global --add safe.directory $REPO_DIR
 
 # 로그 함수
 log() {
@@ -66,8 +68,8 @@ on_exit() {
 trap on_exit EXIT
 trap 'echo "💥 예기치 않은 오류 발생!" >> "$LOG_FILE"; rm -f "$LOCK_FILE"' ERR
 
-log "🚀 시작 (v0.0.2)"
-log "test...1"
+log "🚀 시작 (v0.0.1)"
+log "test...2"
 
 cd "$REPO_DIR"
 
