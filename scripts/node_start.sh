@@ -25,6 +25,7 @@ ETAG_FILE="$ZIP_FILE.etag"
 
 # ==== Chrome 및 Chromedriver S3 다운로드 및 압축 해제 ====
 DRIVER_DIR="$RESOURCE_DIR/driver"
+LINUX_DRIVER_DIR="$DRIVER_DIR/linux"
 # chrome.zip
 CHROME_ZIP_KEY="resource/driver/linux/chrome.zip"
 CHROME_ZIP_FILE="$TEMP_DIR/chrome.zip"
@@ -32,7 +33,7 @@ CHROME_ZIP_FILE="$TEMP_DIR/chrome.zip"
 CHROMEDRIVER_ZIP_KEY="resource/driver/linux/chromedriver.zip"
 CHROMEDRIVER_ZIP_FILE="$TEMP_DIR/chromedriver.zip"
 
-mkdir -p "$DRIVER_DIR"
+mkdir -p "$LINUX_DRIVER_DIR"
 mkdir -p "$TEMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
 mkdir -p "$RESOURCE_DIR"
@@ -152,7 +153,7 @@ pip install -r requirements.txt >> "$LOG_FILE" 2>> "$LOG_FILE" || { log "❌ req
 log "✅ All required modules installed."
 
 # --- Chrome ---
-CHROME_EXEC="$DRIVER_DIR/chrome/chrome"
+CHROME_EXEC="$LINUX_DRIVER_DIR/chrome/chrome"
 if [[ ! -f "$CHROME_EXEC" ]]; then
   log "🕵️ chrome 실행파일 없음 ➜ S3에서 다운로드"
   CHROME_ZIP_KEY="resource/driver/linux/chrome.zip"
@@ -162,15 +163,15 @@ if [[ ! -f "$CHROME_EXEC" ]]; then
   aws s3 cp "s3://${S3_BUCKET}/${CHROME_ZIP_KEY}" "$CHROME_ZIP_FILE" >> "$LOG_FILE" 2>&1 || { log "❌ chrome.zip 다운로드 실패"; exit 1; }
 
   log "📦 chrome.zip 압축 해제 중..."
-  mkdir -p "$DRIVER_DIR/chrome"
-  unzip -o "$CHROME_ZIP_FILE" -d "$DRIVER_DIR/chrome" >> "$LOG_FILE" 2>&1
+  mkdir -p "$LINUX_DRIVER_DIR/chrome"
+  unzip -o "$CHROME_ZIP_FILE" -d "$LINUX_DRIVER_DIR/chrome" >> "$LOG_FILE" 2>&1
   rm -f "$CHROME_ZIP_FILE"
 else
   log "✅ chrome 실행파일 존재함 ➜ 다운로드 생략"
 fi
 
 # --- Chromedriver ---
-CHROMEDRIVER_EXEC="$DRIVER_DIR/chromedriver/chromedriver"
+CHROMEDRIVER_EXEC="$LINUX_DRIVER_DIR/chromedriver/chromedriver"
 if [[ ! -f "$CHROMEDRIVER_EXEC" ]]; then
   log "🕵️ chromedriver 실행파일 없음 ➜ S3에서 다운로드"
   CHROMEDRIVER_ZIP_KEY="resource/driver/linux/chromedriver.zip"
@@ -180,8 +181,8 @@ if [[ ! -f "$CHROMEDRIVER_EXEC" ]]; then
   aws s3 cp "s3://${S3_BUCKET}/${CHROMEDRIVER_ZIP_KEY}" "$CHROMEDRIVER_ZIP_FILE" >> "$LOG_FILE" 2>&1 || { log "❌ chromedriver.zip 다운로드 실패"; exit 1; }
 
   log "📦 chromedriver.zip 압축 해제 중..."
-  mkdir -p "$DRIVER_DIR/chromedriver"
-  unzip -o "$CHROMEDRIVER_ZIP_FILE" -d "$DRIVER_DIR/chromedriver" >> "$LOG_FILE" 2>&1
+  mkdir -p "$LINUX_DRIVER_DIR/chromedriver"
+  unzip -o "$CHROMEDRIVER_ZIP_FILE" -d "$LINUX_DRIVER_DIR/chromedriver" >> "$LOG_FILE" 2>&1
   rm -f "$CHROMEDRIVER_ZIP_FILE"
 else
   log "✅ chromedriver 실행파일 존재함 ➜ 다운로드 생략"
