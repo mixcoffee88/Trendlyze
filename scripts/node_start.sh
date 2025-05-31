@@ -214,8 +214,11 @@ log "🔗 심볼릭 링크 생성: $PROJECT_DIR/driver ➜ $DRIVER_DIR"
 ln -s "$EFS_DIR/profiles" "$PROJECT_DIR/profiles"
 log "🔗 심볼릭 링크 생성: $PROJECT_DIR/profiles ➜ $EFS_DIR/profiles"
 
+SCHEDULE_NAME="monitoring-schedule-${INSTANCE_ID}"
+log "📆 Scheduler 생성 시도: $SCHEDULE_NAME"
+
 aws scheduler create-schedule \
-  --name "monitoring-schedule-${INSTANCE_ID}" \
+  --name "$SCHEDULE_NAME" \
   --schedule-expression "rate(2 minutes)" \
   --flexible-time-window '{ "Mode": "OFF" }' \
   --target "{
@@ -223,7 +226,19 @@ aws scheduler create-schedule \
     \"RoleArn\": \"arn:aws:iam::$ACCOUNT_ID:role/$RULE_NAME\",
     \"Input\": \"{ \\\"instance-id\\\": \\\"$INSTANCE_ID\\\", \\\"target-date\\\": \\\"$TARGET_DATE\\\" }\"
   }" \
-  --schedule-group-name "$SCHEDULE_GROUP"
+  --schedule-group-name "$SCHEDULE_GROUP" >> "$LOG_FILE" 2>&1
+
+# 생성 확인
+log "🔍 생성된 스케줄 상태 확인 중..."
+
+if aws scheduler get-schedule \
+  --name "$SCHEDULE_NAME" \
+  --schedule-group "$SCHEDULE_GROUP" >> "$LOG_FILE" 2>&1; then
+  log "✅ Scheduler 생성 완료 및 상태 조회 성공: $SCHEDULE_NAME"
+else
+  log "❌ Scheduler 생성 실패 또는 조회 실패: $SCHEDULE_NAME"
+  exit 1
+fi
 
 log "🎉 배포 완료"
 exit 0
