@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+export TMPDIR=/home/ec2-user/tmp
 
 # ==== 설정 ====
 APP_NAME="trendlyze"
@@ -25,6 +26,7 @@ ETAG_FILE="$ZIP_FILE.etag"
 mkdir -p "$TEMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
 mkdir -p "$RESOURCE_DIR"
+mkdir -p $TMPDIR
 
 # ==== 공통 함수 ====
 log() {

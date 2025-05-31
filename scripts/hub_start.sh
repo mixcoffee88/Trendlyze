@@ -3,6 +3,7 @@ set -e
 export HOME=/home/ec2-user
 export GIT_SSH_COMMAND="ssh -i /home/ec2-user/.ssh/id_ed25519 -o StrictHostKeyChecking=no"
 chmod 600 /home/ec2-user/.ssh/id_ed25519
+export TMPDIR=/home/ec2-user/tmp
 
 ROOT_DIR="/home/ec2-user/trendlyze"
 REPO_DIR="$ROOT_DIR/resource/Trendlyze"
@@ -32,6 +33,7 @@ LAMBDA_FUNCTION_NAME="trendlyze-instance-start"
 
 mkdir -p "$TMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
+mkdir -p $TMPDIR
 
 git config --global --add safe.directory "$REPO_DIR"
 
