@@ -67,7 +67,7 @@ trap on_exit EXIT
 trap 'echo "💥 예기치 않은 오류 발생!" >> "$LOG_FILE"; rm -f "$LOCK_FILE"' ERR
 
 log "🚀 시작 (v0.0.2)"
-log "test."
+log "test...1"
 
 cd "$REPO_DIR"
 
