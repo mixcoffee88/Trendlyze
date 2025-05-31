@@ -251,7 +251,7 @@ log "🔍 생성된 스케줄 상태 확인 중..."
 
 if aws scheduler get-schedule \
   --name "$SCHEDULE_NAME" \
-  --schedule-group "$SCHEDULE_GROUP" >> "$LOG_FILE" 2>&1; then
+  --schedule-group-name "$SCHEDULE_GROUP" >> "$LOG_FILE" 2>&1; then
   log "✅ Scheduler 생성 완료 및 상태 조회 성공: $SCHEDULE_NAME"
 else
   log "❌ Scheduler 생성 실패 또는 조회 실패: $SCHEDULE_NAME"
