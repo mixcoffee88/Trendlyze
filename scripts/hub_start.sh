@@ -3,7 +3,6 @@ set -e
 export HOME=/home/ec2-user
 export GIT_SSH_COMMAND="ssh -i /home/ec2-user/.ssh/id_ed25519 -o StrictHostKeyChecking=no"
 chmod 600 /home/ec2-user/.ssh/id_ed25519
-chown -R ec2-user:ec2-user /home/ec2-user/.cache
 export TMPDIR=/home/ec2-user/tmp
 
 ROOT_DIR="/home/ec2-user/trendlyze"
@@ -196,7 +195,7 @@ python3.11 -m venv $ROOT_DIR/.venv
 source $ROOT_DIR/.venv/bin/activate
 
 python -m pip install --upgrade pip
-pip install -r requirements.txt >> "$LOG_FILE" 2>> "$LOG_FILE" || { log "❌ requirements 설치 실패"; exit 1; }
+pip install --no-cache-dir -r requirements.txt >> "$LOG_FILE" 2>> "$LOG_FILE" || { log "❌ requirements 설치 실패"; exit 1; }
 
 
 log "✅ All required modules installed."

@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 export TMPDIR=/home/ec2-user/tmp
-chown -R ec2-user:ec2-user /home/ec2-user/.cache
 
 # ==== 설정 ====
 APP_NAME="trendlyze"
@@ -164,7 +163,7 @@ python3.11 -m venv $ROOT_DIR/.venv
 source $ROOT_DIR/.venv/bin/activate
 
 python -m pip install --upgrade pip
-pip install -r requirements.txt >> "$LOG_FILE" 2>> "$LOG_FILE" || { log "❌ requirements 설치 실패"; exit 1; }
+pip install --no-cache-dir -r requirements.txt >> "$LOG_FILE" 2>> "$LOG_FILE" || { log "❌ requirements 설치 실패"; exit 1; }
 
 log "✅ All required modules installed."
 
