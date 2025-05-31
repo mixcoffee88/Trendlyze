@@ -230,7 +230,7 @@ if [[ -z "$INSTANCE_IDS" || "$INSTANCE_IDS" == "None" ]]; then
 else
   log "▶️ 인스턴스 시작 중: $INSTANCE_IDS"
   aws ec2 start-instances --region "$REGION" --instance-ids $INSTANCE_IDS >> "$LOG_FILE" 2>&1
-  log "⏳ 인스턴스 상태 대기 중..."
+  log "⏳ 인스턴스 실행 상태 대기 중..."
   aws ec2 wait instance-running --region "$REGION" --instance-ids $INSTANCE_IDS
   log "✅ 인스턴스 실행 완료"
 fi

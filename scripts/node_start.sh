@@ -228,7 +228,7 @@ chmod +x "$CHROMEDRIVER_EXEC"
 ln -s "$DRIVER_DIR" "$PROJECT_DIR/driver"
 log "🔗 심볼릭 링크 생성: $PROJECT_DIR/driver ➜ $DRIVER_DIR"
 
-[ -L "$EFS_DIR/profiles" ] || [ -d "$EFS_DIR/profiles" ] && rm -rf "$EFS_DIR/profiles"
+[ -L "$PROJECT_DIR/profiles" ] || [ -d "$PROJECT_DIR/profiles" ] && rm -rf "$PROJECT_DIR/profiles"
 ln -s "$EFS_DIR/profiles" "$PROJECT_DIR/profiles"
 log "🔗 심볼릭 링크 생성: $PROJECT_DIR/profiles ➜ $EFS_DIR/profiles"
 
