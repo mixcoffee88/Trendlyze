@@ -299,7 +299,7 @@ for i in {1..100}; do
     --region "$REGION" \
     --details \
     --query "CommandInvocations[*].{Instance:InstanceId,Status:Status}" \
-    --output json > "$LOG_DIR/ssm_failed_$(date +%H%M%S).json")
+    --output json | tee "$LOG_DIR/ssm_failed_$(date +%H%M%S).json")
   TOTAL=$(echo "$INVOCATIONS" | jq length)
   SUCCESS_COUNT=$(echo "$INVOCATIONS" | jq '[.[] | select(.Status=="Success")] | length')
   FAILED_COUNT=$(echo "$INVOCATIONS" | jq '[.[] | select(.Status=="Failed")] | length')
