@@ -16,7 +16,9 @@ LOG_DIR="$ROOT_DIR/logs"
 LOG_FILE="$LOG_DIR/log_${LOG_DATE}.log"
 LOCK_FILE="$ROOT_DIR/hub_start.lock"
 
+TABLE_NAME="trendlyze-sqs-messages"
 REGION="ap-northeast-2"
+CUTOFF_DATE=$(date -d "-30 days" +"%Y%m%d")
 TAG_KEY="crawler-type"
 TAG_VALUE="node"
 COMMAND="$ROOT_DIR/node_start.sh"
@@ -372,7 +374,7 @@ for FILE in "$REPO_DIR"/crawler/site/*.py; do
 
   # DynamoDB 기록
   aws dynamodb put-item \
-    --table-name "trendlyze-sqs-messages" \
+    --table-name "$TABLE_NAME" \
     --item "{
       \"req_date\": {\"S\": \"$REQ_DATE\"},
       \"site\": {\"S\": \"$FILENAME\"},
@@ -382,7 +384,7 @@ for FILE in "$REPO_DIR"/crawler/site/*.py; do
     --region "$REGION" >> "$LOG_FILE" 2>&1
 done
 
-log "✅ site 크롤러 목록 SQS 등록 완료"
+log "✅ site 크롤러 목록 SQS 등록 완료."
 
 # 📁 오래된 로그 정리 (30일 초과)
 log "🧹 30일 초과 로그 정리 시작"
