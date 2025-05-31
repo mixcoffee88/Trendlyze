@@ -2,6 +2,7 @@
 set -e
 export HOME=/home/ec2-user
 export GIT_SSH_COMMAND="ssh -i /home/ec2-user/.ssh/id_ed25519 -o StrictHostKeyChecking=no"
+chmod 600 /home/ec2-user/.ssh/id_ed25519
 
 ROOT_DIR="/home/ec2-user/trendlyze"
 REPO_DIR="$ROOT_DIR/resource/Trendlyze"
@@ -32,7 +33,7 @@ LAMBDA_FUNCTION_NAME="trendlyze-instance-start"
 mkdir -p "$TMP_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
 
-git config --global --add safe.directory $REPO_DIR
+git config --global --add safe.directory "$REPO_DIR"
 
 # 로그 함수
 log() {
@@ -55,7 +56,7 @@ print_final_status() {
       --region "$REGION" \
       --details \
       --query "CommandInvocations[*].{Instance:InstanceId,Status:Status,Output:CommandPlugins[0].Output}" \
-      --output table
+      --output json > "$LOG_DIR/ssm_failed_$(date +%H%M%S).json"
   else
     log "📋 종료 시점에 Command ID 없음 - 상태 출력 생략"
   fi
@@ -149,13 +150,55 @@ if [[ "$CURRENT_HASH" != "$LATEST_HASH" ]]; then
     --invocation-type Event \
     --cli-binary-format raw-in-base64-out \
     --payload '{"body": {"command": "retry"}}' \
-    $LOG_DIR/lambda_output.json; then
+    "$LOG_DIR/lambda_output_$(date +%H%M%S).json"; then
     log "❌ Lambda 호출 실패. 스크립트 중단"
     exit 1
   fi
   log "🛑 현재 hub_start.sh 종료"
   exit 0
 fi
+
+
+# Python 3.11.9 설치 여부 확인
+PYTHON_VERSION=$(python3.11 --version 2>/dev/null || echo "not_installed")
+
+if [[ "$PYTHON_VERSION" == "Python 3.11.9" ]]; then
+    log "✅ Python 3.11.9 is already installed."
+else
+    log "📦 Installing Python 3.11.9..."
+
+    # 의존 패키지 설치
+    log yum update -y
+    sudo yum update -y >> "$LOG_FILE" 2>&1
+    log yum groupinstall "Development Tools" -y
+    sudo yum groupinstall "Development Tools" -y >> "$LOG_FILE" 2>&1
+    log yum install gcc openssl-devel bzip2-devel libffi-devel wget -y
+    sudo yum install gcc openssl-devel bzip2-devel libffi-devel wget -y >> "$LOG_FILE" 2>&1
+
+
+    # 소스 다운로드 및 설치
+    cd /usr/src
+    sudo wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz
+    sudo tar xzf Python-3.11.9.tgz
+    cd Python-3.11.9
+    sudo ./configure --enable-optimizations
+    sudo make altinstall || { log "❌ Python build 실패"; exit 1; }
+
+    log "✅ Python 3.11.9 installed successfully."
+
+
+fi
+
+# requirements.txt 설치
+log "📦 Installing requirements.txt modules..."
+cd "$REPO_DIR"
+python3.11 -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+pip install -r requirements.txt || { log "❌ requirements 설치 실패"; exit 1; }
+
+log "✅ All required modules installed."
 
 # 인스턴스 조회 및 시작
 INSTANCE_IDS=$(aws ec2 describe-instances \
@@ -195,7 +238,7 @@ for i in {1..40}; do
     log "✅ 모든 인스턴스의 SSM 에이전트 활성화 확인 완료"
     break
   fi
-  if [[ "$i" -eq 20 ]]; then
+  if [[ "$i" -eq 40 ]]; then
     log "❌ SSM 에이전트가 활성화되지 않은 인스턴스가 있습니다. 중단합니다."
     exit 1
   fi
@@ -231,7 +274,7 @@ aws ssm list-command-invocations \
   --region "$REGION" \
   --details \
   --query "CommandInvocations[*].{Instance:InstanceId,Status:Status,Output:CommandPlugins[0].Output}" \
-  --output table
+  --output json > "$LOG_DIR/ssm_failed_$(date +%H%M%S).json"
 log "✅ 최신화 완료"
 
 # 💬 SSM 명령 전송(node instance의 node_start.sh 실행)
@@ -256,7 +299,7 @@ for i in {1..100}; do
     --region "$REGION" \
     --details \
     --query "CommandInvocations[*].{Instance:InstanceId,Status:Status}" \
-    --output json)
+    --output json > "$LOG_DIR/ssm_failed_$(date +%H%M%S).json")
   TOTAL=$(echo "$INVOCATIONS" | jq length)
   SUCCESS_COUNT=$(echo "$INVOCATIONS" | jq '[.[] | select(.Status=="Success")] | length')
   FAILED_COUNT=$(echo "$INVOCATIONS" | jq '[.[] | select(.Status=="Failed")] | length')
