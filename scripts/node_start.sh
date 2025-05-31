@@ -100,5 +100,44 @@ else
   download_and_extract
 fi
 
+# Python 3.11.9 설치 여부 확인
+PYTHON_VERSION=$(python3.11 --version 2>/dev/null || echo "not_installed")
+
+if [[ "$PYTHON_VERSION" == "Python 3.11.9" ]]; then
+    log "✅ Python 3.11.9 is already installed."
+else
+    log "📦 Installing Python 3.11.9..."
+
+    # 의존 패키지 설치
+    log yum update -y
+    sudo yum update -y >> "$LOG_FILE" 2>&1
+    log yum groupinstall "Development Tools" -y
+    sudo yum groupinstall "Development Tools" -y >> "$LOG_FILE" 2>&1
+    log yum install gcc openssl-devel bzip2-devel libffi-devel wget -y
+    sudo yum install gcc openssl-devel bzip2-devel libffi-devel wget -y >> "$LOG_FILE" 2>&1
+
+
+    # 소스 다운로드 및 설치
+    cd /usr/src
+    sudo wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz
+    sudo tar xzf Python-3.11.9.tgz
+    cd Python-3.11.9
+    sudo ./configure --enable-optimizations
+    sudo make altinstall || { log "❌ Python build 실패"; exit 1; }
+
+    log "✅ Python 3.11.9 installed successfully."
+fi
+
+# requirements.txt 설치
+log "📦 Installing requirements.txt modules..."
+cd "$PROJECT_DIR"
+python3.11 -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+pip install -r requirements.txt || { log "❌ requirements 설치 실패"; exit 1; }
+
+log "✅ All required modules installed."
+
 log "🎉 배포 완료"
 exit 0

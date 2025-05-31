@@ -185,8 +185,6 @@ else
     sudo make altinstall || { log "❌ Python build 실패"; exit 1; }
 
     log "✅ Python 3.11.9 installed successfully."
-
-
 fi
 
 # requirements.txt 설치
